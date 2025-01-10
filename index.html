@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godot Project with Side Table</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: row;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            top: 0;
+        }
+
+        #content {
+            display: flex;
+            margin-top: 150px; /* Leaves space for the fixed header */
+            width: 100%;
+        }
+
+        #iframe-container {
+            flex: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+        }
+
+        iframe {
+            border: none;
+            width: 800px; /* Adjust to fit your project */
+            height: 600px; /* Adjust to fit your project */
+        }
+
+        #table-container {
+            flex: 1;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-left: 1px solid #ccc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Custom Webpage with Godot Project</h1>
+    </header>
+
+    <div id="content">
+        <div id="iframe-container">
+            <!-- Embedding Godot Project -->
+            <iframe id="godot-iframe" src="http://localhost:8060/tmp_js_export.html" title="Godot Game" ></iframe>
+        </div>
+    
+
+        <div id="table-container">
+            <h2>Dynamic Table</h2>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Alpha</td>
+                        <td>10</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Beta</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Gamma</td>
+                        <td>30</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <button id="send-button">Send Message to Godot</button>
+
+    <footer>
+        <p style="text-align: center; margin-top: 10px;">Made with ♥ using Godot Engine</p>
+    </footer>
+
+    <script>
+        const godotIframe = document.getElementById("godot-iframe");
+        
+        // Function to send a message to Godot
+        function sendMessageToGodot() {
+            const message = {
+                color: "blue" // Example: Change the background color
+            };
+            godotIframe.contentWindow.postMessage(message, "*"); // Use "*" or restrict to your server's origin
+        }
+
+        // Example button to send a message
+        document.getElementById("send-button").addEventListener("click", sendMessageToGodot);
+
+        // Example of how the outer site could listen for messages from the iframe 
+        window.addEventListener("message", (event) => {
+            // Check the origin of the message
+            // Replace `http://localhost:8000` with the actual URL of your iframe if needed
+            if (event.origin !== "http://localhost:8060") return;
+
+            const { rowId, newValue } = event.data; // Assuming the iframe sends these
+            if (rowId && newValue) {
+                // Update the table
+                const table = document.getElementById("data-table");
+                const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+                for (const row of rows) {
+                    const cellId = row.cells[0].innerText;
+                    if (cellId === rowId.toString()) {
+                        row.cells[2].innerText = newValue; // Update the value
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
