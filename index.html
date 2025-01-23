@@ -8,8 +8,6 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: row;
         }
 
         header {
@@ -23,10 +21,15 @@
         }
 
         #content {
-            display: flex;
             margin-top: 150px; /* Leaves space for the fixed header */
             width: 100%;
         }
+
+        #tableContainer {
+            width: 100%;
+            
+        }
+
 
         #iframe-container {
             flex: 3;
@@ -54,6 +57,9 @@
             border-collapse: collapse;
         }
 
+        tr {
+            font-size: xx-small;
+        }
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
@@ -74,47 +80,113 @@
     <div id="content">
         <div id="iframe-container">
             <!-- Embedding Godot Project -->
-            <iframe id="godot-iframe" src="exported_project/index.html" title="Godot Game" ></iframe>
+            <iframe id="godot-iframe" src="https://warrenscipio.github.io/godot-web-app-host/exported_project/index.html" title="Godot Game" ></iframe>
         </div>
     
-
-        <div id="table-container">
-            <h2>Dynamic Table</h2>
-            <table id="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Test 1</td>
-                        <td>10</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Test 2</td>
-                        <td>20</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Test 3</td>
-                        <td>30</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <input type="file" id="jsonFileInput" />
     </div>
+    <button id="save-button">Save to localStorage</button>
     <button id="send-button">Send Message to Godot</button>
-
+    <div id="tableContainer"></div>
+    
     <footer>
         <p style="text-align: center; margin-top: 10px;">Made with ♥ using Godot Engine</p>
     </footer>
 
     <script>
+        var fileContent = "not updated"
+
+function saveToLocalStorage(){
+    console.log(fileContent)
+    localStorage.setItem("Products", fileContent)
+}
+
+// Function to convert a JSON file into an HTML table
+function jsonToHtmlTable(jsonFile, targetElementId) {
+    const reader = new FileReader();
+
+    // Read the JSON file
+    reader.onload = function(event) {
+        const jsonContent = event.target.result;
+        fileContent = jsonContent
+        try {
+            const data = JSON.parse(jsonContent);
+            
+
+            // Create a table element
+            const table = document.createElement("table");
+            table.border = "1";
+            table.style.borderCollapse = "collapse";
+            table.style.width = "100%";
+            table.style.textAlign = "left";
+
+            // Add table headers
+            const headers = ["Name", "ID", "Price", "Image URL"];
+            const headerRow = document.createElement("tr");
+            headers.forEach(header => {
+                const th = document.createElement("th");
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Add table rows
+            Object.values(data).forEach(item => {
+                const tableRow = document.createElement("tr");
+
+                // Name
+                const nameCell = document.createElement("td");
+                nameCell.textContent = item.name || "";
+                tableRow.appendChild(nameCell);
+
+                // ID
+                const idCell = document.createElement("td");
+                idCell.textContent = item._id || "";
+                tableRow.appendChild(idCell);
+
+                // Price
+                const priceCell = document.createElement("td");
+                priceCell.textContent = item.price || "";
+                tableRow.appendChild(priceCell);
+
+                // Image URL
+                const imageCell = document.createElement("td");
+                imageCell.textContent = item.productImageUrl || "";
+                tableRow.appendChild(imageCell);
+
+                table.appendChild(tableRow);
+            });
+
+            // Append the table to the target element
+            const targetElement = document.getElementById(targetElementId);
+            if (targetElement) {
+                targetElement.innerHTML = ""; // Clear existing content
+                targetElement.appendChild(table);
+            } else {
+                console.error("Target element not found");
+            }
+        } catch (error) {
+            console.error("Error parsing JSON file", error);
+        }
+    };
+
+    reader.onerror = function() {
+        console.error("Error reading the file");
+    };
+
+    reader.readAsText(jsonFile);
+}
+
+// Usage Example:
+// Assuming you have an <input type="file" id="jsonFileInput"> and a <div id="tableContainer"> in your HTML
+const fileInput = document.getElementById("jsonFileInput");
+fileInput.addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        jsonToHtmlTable(file, "tableContainer");
+    }
+});
+
         const godotIframe = document.getElementById("godot-iframe");
         
         // Function to send a message to Godot
@@ -125,6 +197,8 @@
             godotIframe.contentWindow.postMessage(message, "*"); // Use "*" or restrict to your server's origin
         }
 
+
+        document.getElementById("save-button").addEventListener("click", saveToLocalStorage);
         // Example button to send a message
         document.getElementById("send-button").addEventListener("click", sendMessageToGodot);
 
