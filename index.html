@@ -206,20 +206,10 @@ fileInput.addEventListener("change", function(event) {
         window.addEventListener("message", (event) => {
             // Check the origin of the message
             // Replace `http://localhost:8000` with the actual URL of your iframe if needed
-            if (event.origin !== "http://localhost:8060") return;
-
-            const { rowId, newValue } = event.data; // Assuming the iframe sends these
-            if (rowId && newValue) {
-                // Update the table
-                const table = document.getElementById("data-table");
-                const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-                for (const row of rows) {
-                    const cellId = row.cells[0].innerText;
-                    if (cellId === rowId.toString()) {
-                        row.cells[2].innerText = newValue; // Update the value
-                    }
-                }
-            }
+            if (event.origin !== "https://warrenscipio.github.io/") return;
+            console.log("Event listener in published github")
+            var value = localStorage.getItem(event.data.key)
+            event.source.postMessage({key:event.data.key, value}, "*")
         });
     </script>
 </body>
