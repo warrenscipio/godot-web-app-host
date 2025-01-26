@@ -206,8 +206,8 @@ fileInput.addEventListener("change", function(event) {
         window.addEventListener("message", (event) => {
             // Check the origin of the message
             // Replace `http://localhost:8000` with the actual URL of your iframe if needed
-            if (event.origin !== "https://warrenscipio.github.io/") return;
-            console.log("Event listener in published github")
+            if (event.origin !== "https://warrenscipio.github.io") return;
+            console.log("Event listener in published github pages")
             var value = localStorage.getItem(event.data.key)
             event.source.postMessage({key:event.data.key, value}, "*")
         });
