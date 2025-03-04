@@ -208,6 +208,8 @@ fileInput.addEventListener("change", function(event) {
             // Replace `http://localhost:8000` with the actual URL of your iframe if needed
             if (event.origin !== "https://warrenscipio.github.io/godot-web-app-host/exported_project") return;
             console.log("Event listener in published github pages")
+            console.log("Event: ", event.data)
+            console.log("Event key: ", event.data.key)
             var value = localStorage.getItem(event.data.key)
             event.source.postMessage({key:event.data.key, value}, "*")
         });
